@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script>
+        async function postLogin() {
+            let user = document.getElementById("user");
+            let pwd = document.getElementById("pwd");
+
+            let obj = { username: user.value, password: pwd.value };
+
+            /*alert(JSON.stringify(obj));*/
+            let result = await fetch("https://localhost:7264/api/Guvenli", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(obj)
+            }).then(resp => resp.text());
+
+            localStorage.setItem("token", "Bearer " + result); //modern browser larda vardır. Sürekli veritabına git gel tokeni al yapmanın önüne geçer
+        }
+
+        async function getData() {
+            let token = localStorage.getItem("token");
+            let result = await fetch("https://localhost:7264/api/Guvenli", {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json', 'Authorization': token }
+            }).then(resp => resp.text());
+            tabloOlustur(JSON.parse(result));
+        }
+
+        /////////////////////////////////////////////////////////////////////
+
+        function tabloOlustur(data) {
+            var tbl = document.getElementById("tablo");
+            let satirlar = "";
+            for (var i = 0; i < data.length; i++) {
+                let satir = "<tr><td>" + data[i].urunId + "</td><td>" + data[i].urunAdi + "</td><td>" + data[i].fiyat + "</td></tr>";
+                satirlar += satir;
+            }
+            tbl.innerHTML = satirlar;
+        }
+
+
+
+
+    </script>
+</head>
+<body>
+    <form>
+        <input type="text" id="user" />
+        <input type="text" id="pwd" />
+    </form>
+    <button onclick="postLogin()">Login</button><br />
+    <button onclick="getData()">Get Data</button><br />
+    <table id="tablo" border="1"></table>
+</body>
+</html>
